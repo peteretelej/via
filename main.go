@@ -1,27 +1,77 @@
 package main
 
 import (
+	"errors"
 	"flag"
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
+	"net/url"
+	"os"
 	"time"
 )
 
-var listen = flag.String("listen", "127.0.0.1:8080", "listen address for http server")
+//ErrInvalidURL is returned when an invalid url is provided
+var ErrInvalidURL = errors.New("invalid url submitted")
+
+var (
+	listen = flag.String("listen", "127.0.0.1:8080", "listen address for http server")
+	server = flag.Bool("server", false, "launches web server")
+)
+
+var usage = func() {
+	fmt.Fprintf(os.Stderr, `via resolves URLs
+
+Usage: 
+	via [URL to resolve]
+	via [flags] 
+
+Examples:
+	via goo.gl/OZGX9M	Resolves the URL 	
+	via -server		Launches a webserver at localhost:8080
+	via -listen :9000	Launches a webserver at 0.0.0.0:9000
+`)
+	flag.PrintDefaults()
+	os.Exit(1)
+}
 
 func main() {
+	flag.Usage = usage
 	flag.Parse()
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
-	Serve(*listen)
+
+	if *server || *listen != "127.0.0.1:8080" {
+		Serve(*listen)
+		return
+	}
+
+	if len(os.Args) < 3 {
+		fmt.Print("A URL is required, see -help")
+		os.Exit(1)
+	}
+	res, err := ResolveURL(os.Args[2])
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(res)
 }
 
 // ResolveURL returns the final URL address on visiting the provided url
 func ResolveURL(u string) (string, error) {
-	resp, err := http.Get(u)
+	theurl, err := url.Parse(u)
+	if err != nil {
+		log.Print(err)
+		return "", ErrInvalidURL
+	}
+	if theurl.Scheme == "" {
+		theurl.Scheme = "http"
+	}
+	resp, err := http.Get(theurl.String())
 	if err != nil {
 		return "", err
 	}
+
 	return resp.Request.URL.String(), nil
 }
 
@@ -83,11 +133,16 @@ func handleIndex(w http.ResponseWriter, r *http.Request) {
 	d.U = r.URL.Query().Get("url")
 	if d.U == "" {
 		renderIndex(w, d)
+		return
 	}
 	res, err := ResolveURL(d.U)
 	if err != nil {
 		d.Err = "resolution failed"
+		if err == ErrInvalidURL {
+			d.Err = err.Error()
+		}
 		renderIndex(w, d)
+		return
 	}
 	d.Result = res
 	renderIndex(w, d)
