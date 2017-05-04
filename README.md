@@ -4,7 +4,7 @@
 - Get final URL in a link with redirects
 - etc
 
-Demo: [via.etelej.com](via.etelej.com) 
+Demo: [via.etelej.com](https://via.etelej.com) 
 
 ## Usage
 
