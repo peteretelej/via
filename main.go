@@ -19,8 +19,9 @@ import (
 var ErrInvalidURL = errors.New("invalid url submitted")
 
 var (
-	listen = flag.String("listen", "127.0.0.1:8080", "listen address for http server")
-	server = flag.Bool("server", false, "launches web server")
+	listen      = flag.String("listen", "127.0.0.1:8080", "listen address for http server")
+	server      = flag.Bool("server", false, "launches web server")
+	logRequests = flag.Bool("log", false, "logs all requests for resolution from server")
 )
 
 var usage = func() {
@@ -84,6 +85,9 @@ func ResolveURL(u, method string, headers map[string]string) (string, error) {
 		for k, v := range headers {
 			req.Header.Add(k, v)
 		}
+	}
+	if *logRequests && !cli {
+		defer logRequest(os.Stdout, req)
 	}
 	resp, err := cl.Do(req)
 	if err != nil {

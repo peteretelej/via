@@ -22,7 +22,11 @@ Running your own instance of the web server
 ``` bash
 via -server 
 # launches at localhost:8080
+
+via -server -log
+# launcher server and logs all resolution requests  (debug)
 ```
+
 
 You can then reverse proxy the above instance with your favourite web server. (nginx, caddy..)
 
