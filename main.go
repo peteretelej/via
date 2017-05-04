@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -52,7 +53,7 @@ func main() {
 		fmt.Print("A URL is required, see -help")
 		os.Exit(1)
 	}
-	res, err := ResolveURL(os.Args[1])
+	res, err := ResolveURL(os.Args[1], "GET", nil)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -60,7 +61,7 @@ func main() {
 }
 
 // ResolveURL returns the final URL address on visiting the provided url
-func ResolveURL(u string) (string, error) {
+func ResolveURL(u, method string, headers map[string]string) (string, error) {
 	theurl, err := url.Parse(u)
 	if err != nil {
 		log.Print(err)
@@ -69,7 +70,17 @@ func ResolveURL(u string) (string, error) {
 	if theurl.Scheme == "" {
 		theurl.Scheme = "http"
 	}
-	resp, err := http.Get(theurl.String())
+	cl := &http.Client{Timeout: 30 * time.Second}
+	req, err := http.NewRequest(method, theurl.String(), nil)
+	if err != nil {
+		return "", err
+	}
+	if len(headers) > 0 {
+		for k, v := range headers {
+			req.Header.Add(k, v)
+		}
+	}
+	resp, err := cl.Do(req)
 	if err != nil {
 		return "", err
 	}
@@ -101,15 +112,25 @@ const indexHTML = `<!DOCTYPE html>
 <title>via</title>
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <style>
+body{ display:block; width:80%; margin:20px  auto;
+}
+label{ display:inline-block; }
+input,textarea { display:block; margin-bottom:20px;}
 </style>
 </head>
 <body>
 <h3>via - URL Resolver</h3>
-<form action="/" method="get">
-	<label>URL
-	<input name="url" value="{{.U}}" required />
-	</label>
+<form action="/" method="post">
+	<label for="url">URL</label>
+	<input name="url" id="url"  style="width:300px" value="{{.U}}" required />
+	<label for="method">Request Method</label>
+	<input type="text" name="method" value="{{.Method}}" />
+	<label for="headers">HTTP Headers (optional)</label>
+	<textarea name="headers" style="width:500px;height:70px"
+placeholder="Accept-Encoding:gzip
+Accept-Language: en-US,en;q=0.8">{{with .Headers}}{{.}}{{end}}</textarea>
 	<input type="submit" class="button" value="Get Final URL" />
+	<a href="/">Clear Query</a>
 </form>
 
 {{if .Err}}
@@ -131,21 +152,56 @@ func renderIndex(w http.ResponseWriter, data interface{}) {
 }
 
 func handleIndex(w http.ResponseWriter, r *http.Request) {
-	d := struct{ U, Result, Err string }{}
-	d.U = r.URL.Query().Get("url")
-	if d.U == "" {
+	d := struct {
+		U, Result, Err string
+		Headers        string
+		Method         string
+	}{Method: "GET"}
+	if r.Method != "POST" {
 		renderIndex(w, d)
 		return
 	}
-	res, err := ResolveURL(d.U)
+	if err := r.ParseForm(); err != nil {
+		http.Redirect(w, r, r.URL.Path, http.StatusFound)
+		return
+	}
+	m := r.Form.Get("method")
+	if m != "" {
+		d.Method = m
+	}
+	d.U = r.Form.Get("url")
+	d.Headers = r.Form.Get("headers")
+
+	headers := retrieveHeaders(d.Headers)
+	res, err := ResolveURL(d.U, m, headers)
 	if err != nil {
-		d.Err = "resolution failed"
 		if err == ErrInvalidURL {
 			d.Err = err.Error()
 		}
+		d.Err = "something strange happened"
 		renderIndex(w, d)
 		return
 	}
 	d.Result = res
 	renderIndex(w, d)
+}
+
+func retrieveHeaders(s string) map[string]string {
+	s = strings.Replace(s, "\r", "", -1)
+	ss := strings.Split(s, "\n")
+	h := make(map[string]string)
+	for _, val := range ss {
+		if strings.Count(val, ":") != 1 {
+			continue
+		}
+		ind := strings.Index(val, ":")
+		if ind < 1 {
+			continue
+		}
+		if len(val) <= ind {
+			continue
+		}
+		h[val[:ind]] = val[ind+1:]
+	}
+	return h
 }
