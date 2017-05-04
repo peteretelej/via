@@ -31,6 +31,8 @@ Examples:
 	via goo.gl/OZGX9M	Resolves the URL 	
 	via -server		Launches a webserver at localhost:8080
 	via -listen :9000	Launches a webserver at 0.0.0.0:9000
+
+Flags:
 `)
 	flag.PrintDefaults()
 	os.Exit(1)
