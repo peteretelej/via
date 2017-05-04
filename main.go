@@ -46,11 +46,11 @@ func main() {
 		return
 	}
 
-	if len(os.Args) < 3 {
+	if len(os.Args) < 2 {
 		fmt.Print("A URL is required, see -help")
 		os.Exit(1)
 	}
-	res, err := ResolveURL(os.Args[2])
+	res, err := ResolveURL(os.Args[1])
 	if err != nil {
 		log.Fatal(err)
 	}
