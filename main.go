@@ -220,5 +220,5 @@ func logRequest(wr io.Writer, req *http.Request) {
 	if err != nil {
 		return
 	}
-	fmt.Fprintf(wr, "%q", dmp)
+	fmt.Fprintf(wr, "%q\n", dmp)
 }
