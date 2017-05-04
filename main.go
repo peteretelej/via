@@ -5,8 +5,10 @@ import (
 	"flag"
 	"fmt"
 	"html/template"
+	"io"
 	"log"
 	"net/http"
+	"net/http/httputil"
 	"net/url"
 	"os"
 	"strings"
@@ -39,6 +41,8 @@ Flags:
 	os.Exit(1)
 }
 
+var cli bool
+
 func main() {
 	flag.Usage = usage
 	flag.Parse()
@@ -53,6 +57,7 @@ func main() {
 		fmt.Print("A URL is required, see -help")
 		os.Exit(1)
 	}
+	cli = true
 	res, err := ResolveURL(os.Args[1], "GET", nil)
 	if err != nil {
 		log.Fatal(err)
@@ -173,7 +178,7 @@ func handleIndex(w http.ResponseWriter, r *http.Request) {
 	d.Headers = r.Form.Get("headers")
 
 	headers := retrieveHeaders(d.Headers)
-	res, err := ResolveURL(d.U, m, headers)
+	res, err := ResolveURL(d.U, d.Method, headers)
 	if err != nil {
 		if err == ErrInvalidURL {
 			d.Err = err.Error()
@@ -204,4 +209,12 @@ func retrieveHeaders(s string) map[string]string {
 		h[val[:ind]] = val[ind+1:]
 	}
 	return h
+}
+
+func logRequest(wr io.Writer, req *http.Request) {
+	dmp, err := httputil.DumpRequest(req, true)
+	if err != nil {
+		return
+	}
+	fmt.Fprintf(wr, "%q", dmp)
 }
