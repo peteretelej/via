@@ -1,4 +1,6 @@
 # via - URL Resolver
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fpeteretelej%2Fvia.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fpeteretelej%2Fvia?ref=badge_shield)
+
 
 - Expands shortened URLs
 - Get final URL in a link with redirects
@@ -35,3 +37,7 @@ via -server -listen :8080
 # launches on 0.0.0.0:8080 (public)
 ``` 
 
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fpeteretelej%2Fvia.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fpeteretelej%2Fvia?ref=badge_large)
