@@ -14,7 +14,7 @@ go get -u github.com/peteretelej/via
 
 Resolving a URL from the command line
 ``` bash
-via goo.gl/OZGX9M
+via bit.ly/3jHZKEC
 ```
 
 Running your own instance of the web server
