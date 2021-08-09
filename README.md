@@ -3,8 +3,7 @@
 - Expands shortened URLs
 - Get final URL from a link with redirects (or shortened link)
 
-## Usage
-
+## Installation
 Grab a binary for your OS from the [**Releases page**](https://github.com/peteretelej/via/releases/latest)
 
 Or install using Go
@@ -12,12 +11,13 @@ Or install using Go
 go get -u github.com/peteretelej/via
 ```
 
+## Usage
 Resolving a URL from the command line
 ``` bash
 via bit.ly/3jHZKEC
 ```
 
-Running your own instance of the web server
+Running a web server with a UI for resolving URLs
 ``` bash
 via -server 
 
