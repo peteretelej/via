@@ -5,7 +5,9 @@
 
 ## Usage
 
-Installing
+Grab a binary for your OS from the [**Releases page**](https://github.com/peteretelej/via/releases/latest)
+
+Or install using Go
 ``` bash
 go get -u github.com/peteretelej/via
 ```
