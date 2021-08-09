@@ -11,6 +11,7 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"os"
+	"regexp"
 	"strings"
 	"time"
 )
@@ -32,7 +33,7 @@ Usage:
 	via [flags] 
 
 Examples:
-	via goo.gl/OZGX9M	Resolves the URL 	
+	via bit.ly/3jHZKEC	Resolves the URL 	
 	via -server		Launches a webserver at localhost:8080
 	via -listen :9000	Launches a webserver at 0.0.0.0:9000
 
@@ -66,6 +67,8 @@ func main() {
 	fmt.Println(res)
 }
 
+var expHostErrNoHost = regexp.MustCompile(`Get "([^"]*)": dial tcp: lookup`)
+
 // ResolveURL returns the final URL address on visiting the provided url
 func ResolveURL(u, method string, headers map[string]string) (string, error) {
 	theurl, err := url.Parse(u)
@@ -91,6 +94,11 @@ func ResolveURL(u, method string, headers map[string]string) (string, error) {
 	}
 	resp, err := cl.Do(req)
 	if err != nil {
+		if strings.Contains(err.Error(), "no such host") {
+			if match := expHostErrNoHost.FindStringSubmatch(err.Error()); match != nil {
+				return match[1], nil
+			}
+		}
 		return "", err
 	}
 
