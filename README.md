@@ -34,6 +34,7 @@ via -server -listen :8080
 ``` 
 
 Web UI for the launched `-server`
-<img src="https://user-images.githubusercontent.com/2271973/128786358-de6096eb-324b-4e11-a997-3beee76cfbbb.png" width="600" height="600">
+
+<img src="https://user-images.githubusercontent.com/2271973/128786970-42d0618c-2f6b-4af3-950f-c7595a5a5455.png" width="400" height="400">
 
 License: **MIT**
