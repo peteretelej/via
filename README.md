@@ -1,4 +1,4 @@
-# via - URL Resolver
+# via - URL Resolver / URL Expander
 
 - Expands shortened URLs
 - Get final URL from a link with redirects (or shortened link)
