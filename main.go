@@ -20,7 +20,7 @@ import (
 var ErrInvalidURL = errors.New("invalid url submitted")
 
 var (
-	listen      = flag.String("listen", "127.0.0.1:8080", "listen address for http server")
+	listen      = flag.String("listen", "localhost:8080", "listen address for http server")
 	server      = flag.Bool("server", false, "launches web server")
 	logRequests = flag.Bool("log", false, "logs all requests for resolution from server")
 )
@@ -116,7 +116,7 @@ func Serve(listenAddr string) {
 		WriteTimeout:   2 * time.Minute,
 		MaxHeaderBytes: 1 << 20,
 	}
-	log.Printf("Launching http server on %s", listenAddr)
+	log.Printf("Launching http server on http://%s", listenAddr)
 	log.Fatal(svr.ListenAndServe())
 }
 
@@ -154,8 +154,9 @@ Accept-Language: en-US,en;q=0.8">{{with .Headers}}{{.}}{{end}}</textarea>
 <p class="background-color:rgb(250,150,150)"> Unable to resolve URL( {{.U}} ): {{.Err}}.</p>
 {{end}}
 {{if .Result}}
-<div class="callout">
-<p style="display:inline-block;">{{.Result}}</p>
+<div class="callout" style="margin-top:20px;">
+<h4 style="display:inline-block;border-bottom:1px solid #333">Expanded URL</h4>
+<p style="font-weight:bold;user-select:all;">{{.Result}}</p>
 <div>
 {{end}}
 </body>
