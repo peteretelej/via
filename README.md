@@ -4,11 +4,12 @@
 - Get final URL from a link with redirects (or shortened link)
 
 ## Installation
-Grab a binary for your OS from the [**Releases page**](https://github.com/peteretelej/via/releases/latest)
+Download the binary for your OS from Releases:
+- [**Releases page**](https://github.com/peteretelej/via/releases/latest)
 
 Or install using Go
 ``` bash
-go get -u github.com/peteretelej/via
+go install github.com/peteretelej/via@latest
 ```
 
 ## Usage
@@ -19,9 +20,9 @@ via bit.ly/3jHZKEC
 
 Running a web server with a UI for resolving URLs
 ``` bash
-via -server 
+via --server 
 
-via -server -log
+via --server --log
 # launcher server and logs all resolution requests  (debug)
 ```
 Server launches at http://localhost:8080 with a Web UI for expanding URLs
@@ -31,7 +32,7 @@ You can then reverse proxy the above instance with your favourite web server. (n
 
 Or run it live 
 ``` bash
-via -server -listen :8080
+via --server --listen :8080
 # launches on 0.0.0.0:8080 (public)
 ``` 
 

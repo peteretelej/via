@@ -20,7 +20,7 @@ import (
 var ErrInvalidURL = errors.New("invalid url submitted")
 
 var (
-	listen      = flag.String("listen", "localhost:8080", "listen address for http server")
+	listen      = flag.String("listen", "", "listen address for http server")
 	server      = flag.Bool("server", false, "launches web server")
 	logRequests = flag.Bool("log", false, "logs all requests for resolution from server")
 )
@@ -36,6 +36,7 @@ Examples:
 	via bit.ly/3jHZKEC	Resolves the URL 	
 	via -server		Launches a webserver at localhost:8080
 	via -listen :9000	Launches a webserver at 0.0.0.0:9000
+	via -listen localhost:9000	Launches a webserver at localhost:9000
 
 Flags:
 `)
@@ -50,7 +51,7 @@ func main() {
 	flag.Parse()
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
-	if *server || *listen != "127.0.0.1:8080" {
+	if *server || *listen != "" {
 		Serve(*listen)
 		return
 	}
@@ -105,8 +106,13 @@ func ResolveURL(u, method string, headers map[string]string) (string, error) {
 	return resp.Request.URL.String(), nil
 }
 
+const defaultListenAddr = "localhost:8080"
+
 // Serve launches a http server on the specified listen address and serves an html page for resolving urls
 func Serve(listenAddr string) {
+	if listenAddr == "" {
+		listenAddr = defaultListenAddr
+	}
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", handleIndex)
 	svr := &http.Server{
